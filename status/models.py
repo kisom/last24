@@ -19,7 +19,9 @@ class Tag(models.Model):
 class Status(models.Model):
     """What did you do?"""
     title = models.CharField(max_length=256)
-    owner = models.ForeignKey(auth_models.User)
-    restricted = models.ForeignKey(auth_models.Group, null=True, blank=True)
+    owner = models.ForeignKey(auth_models.User, on_delete=models.CASCADE)
+    restricted = models.ForeignKey(auth_models.Group, null=True, blank=True, on_delete=models.SET_NULL)
     notes = models.TextField(max_length=1024, null=True, blank=True)
     completed = models.BooleanField()
+
+

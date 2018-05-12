@@ -19,11 +19,31 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!fozd0=#6v+)!t=&$xt#mh$lt)hp48y=sa45z$zspiw_%prlqm'
+if os.getenv('APPENV') == 'production':
+    DEBUG = False
+    SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE'),
+            'HOST': os.environ.get('PGHOST'),
+            'PORT': os.environ.get('PGPORT'),
+            'USER': os.environ.get('PGUSER'),
+            'PASSWORD': os.environ.get('PGPASS')
+        }
+    }
+else:
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = '!fozd0=#6v+)!t=&$xt#mh$lt)hp48y=sa45z$zspiw_%prlqm'
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 ALLOWED_HOSTS = []
 
@@ -37,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'status.apps.StatusConfig',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +75,7 @@ ROOT_URLCONF = 'last24.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['.'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,18 +120,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'America/Los_Angeles'
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
